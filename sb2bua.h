@@ -34,11 +34,11 @@
 #define PJMEDIA_INVALID_PORT -1
 
 /* ====== configuration ====== */
-#define LOCAL_IP_UPSTREAM    "60.40.0.233"
-#define LOCAL_IP_PHONE       "192.168.99.233"
-#define SIP_SERVER           "60.40.0.205"
-#define UPSTREAM_USER        "1005" //  向sip注册的用户名
-#define UPSTREAM_PASS        "password555" //  向sip注册的密码
+#define LOCAL_IP_UPSTREAM    "10.0.6.175"
+#define LOCAL_IP_PHONE       "10.0.6.175"
+#define SIP_SERVER           "10.0.6.91"
+#define UPSTREAM_USER        "1001" //  向sip注册的用户名
+#define UPSTREAM_PASS        "1001pass" //  向sip注册的密码
 #define LOCAL_REG_USER       "111"  //  本地注册用户名
 #define LOCAL_REG_PASS       "11111111" //  本地注册密码
 #define REALM_DEFAULT        "b2bua"
