@@ -14,6 +14,7 @@
 # include <arpa/inet.h>
 # include <unistd.h>
 # include <fcntl.h>
+# define closesocket close
 #endif
 
 b2broute g_routemap;

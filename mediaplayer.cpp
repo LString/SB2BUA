@@ -1,13 +1,14 @@
 //	mediaplayer.cpp
 /*
-* Ò»¸öÍ¨»°µÄ»á»°Ã½ÌåÊµÏÖ
+* Ò»Í¨Ä»á»°Ã½Êµ
 */
 #include "mediaplayer.h"
 #include "uasess.h"
+#include "config.h"
 
 std::atomic<bool> g_sharp_ok(false);
 extern "C" {
-	//	ÏÈ×öÒ»¸ö¼òÒ×µÄdigit¼ì²â
+	//	Ò»×µdigit
 	void cb_dtmf_check(pjmedia_stream* pstream,
 		void* user_data,
 		int digit) {
@@ -26,22 +27,22 @@ extern "C" {
 }
 namespace ccsua {
 
-	const std::string _wav_dir = "F:\\wg\\voip\\sb2bua20251023\\wav_files\\";
-	//	¶Ô¶ËÎªÆÕÍ¨»°»ú£¬ÎŞ·¨¼ÓÃÜÍ¨»°
+        const std::string _wav_dir = config::get().wav_dir();
+	//	Ô¶ÎªÍ¨Ş·Í¨
 	const std::string _wav_rmt_normal("01.normal_phone.wav");
-	//	×ÊÔ´ÏÂÔØÊ§°Ü£¬ÎŞ·¨¼ÓÃÜÍ¨»°
+	//	Ô´Ê§Ü£Ş·Í¨
 	const std::string _wav_res_downfail("02.res_down_fail.wav");
-	//	¶Ô¶ËÖ¤ÊéÑéÖ¤Ê§°Ü
+	//	Ô¶Ö¤Ö¤Ê§
 	const std::string _wav_rmt_certfail("03.verify_cert_fail.wav");
-	//	¹¤×÷ÃÜÔ¿Ğ­ÉÌ´íÎó
+	//	Ô¿Ğ­Ì´
 	const std::string _wav_key_exchangefail("04.key_exchange_fail.wav");
-	//	ÊäÈëPINÈÏÖ¤
+	//	PINÖ¤
 	const std::string _wav_pin_auth("05.pin_auth.wav");
-	//	µÈ´ı¹¤×÷ÃÜÔ¿Ğ­ÉÌ
+	//	È´Ô¿Ğ­
 	const std::string _wav_wait_key_exchange("06.wait_key_exchange.wav");
-	//	Ö÷²Ëµ¥ÌáÊ¾Òô
+	//	ËµÊ¾
 	const std::string _wav_main_menu("07.main_menu.wav");
-	//	µÈ´ı¶Ô·½È·ÈÏ
+	//	È´Ô·È·
 	const std::string _wav_wait_remote_confirm("08.wait_remote_confirm.wav");
 
 	sessmedia::sessmedia() : m_transport_inner(nullptr), m_transport_outer(nullptr), 
@@ -72,7 +73,7 @@ namespace ccsua {
 		}
 	}
 
-	//	ÉèÖÃ±¾Òªsdp session£¬ºóĞøÓÃÀ´´´½¨Ã½Ìå»á»°Ê¹ÓÃ--ÕâÁ½¸ö·Ö¿ªÉèÖÃÊÇÒòÎªËüÃÇ´´½¨³öÀ´µÄÊ±»ú²»Í¬
+	//	Ã±Òªsdp sessionÃ½á»°Ê¹--Ö¿ÎªÇ´Ê±Í¬
 	void sessmedia::set_local_sdp_session_inner(const std::string& _localsdp) {
 		if (m_mediaok) return;
 		if (!m_local_sdp_str_inner.empty() || _localsdp.empty()) {
@@ -84,7 +85,7 @@ namespace ccsua {
 			m_local_sdp_str_inner.data(), m_local_sdp_str_inner.size(), &m_local_sdp_inner);
 		pj_assert(PJ_SUCCESS == status);
 	}
-	//	ÉèÖÃ¶Ô¶ËµÄsdp sessionºóĞøÓÃÀ´´´½¨Ã½Ìå»á»°Ê¹ÓÃ
+	//	Ã¶Ô¶Ëµsdp sessionÃ½á»°Ê¹
 	void sessmedia::set_remote_sdp_session_inner(const std::string& _remotesdp) {
 		if (m_mediaok) return;
 		if (!m_remote_sdp_str_inner.empty() || _remotesdp.empty()) {
@@ -97,7 +98,7 @@ namespace ccsua {
 		pj_assert(PJ_SUCCESS == status);
 	}
 
-	//	Íâ¶Ë»°»úµÄsdp
+	//	Ë»sdp
 	void sessmedia::set_local_sdp_session_outer(const std::string& _localsdp) {
 		if (m_mediaok) return;
 		if (!m_local_sdp_str_outer.empty() || _localsdp.empty()) {
@@ -109,7 +110,7 @@ namespace ccsua {
 			m_local_sdp_str_outer.data(), m_local_sdp_str_outer.size(), &m_local_sdp_outer);
 		pj_assert(PJ_SUCCESS == status);
 	}
-	//	ÉèÖÃ¶Ô¶ËµÄsdp sessionºóĞøÓÃÀ´´´½¨Ã½Ìå»á»°Ê¹ÓÃ
+	//	Ã¶Ô¶Ëµsdp sessionÃ½á»°Ê¹
 	void sessmedia::set_remote_sdp_session_outer(const std::string& _rmtsdp) {
 		if (m_mediaok) return;
 		if (!m_remote_sdp_str_outer.empty() || _rmtsdp.empty()) {
@@ -125,19 +126,19 @@ namespace ccsua {
 	//	
 	bool sessmedia::create_media_player() {
 		if (m_mediaok) return true;
-		//	ĞèÒªÏÈÑéÖ¤´«Êä±¾µØ¶Ë¿ÚÒÔ¼°¶Ô¶ËµÄÃ½Ìå¶Ë¿Ú
+		//	ÒªÖ¤ä±¾Ø¶Ë¿Ô¼Ô¶ËµÃ½Ë¿
 		pj_assert(nullptr != g_med_endpt);
-		pj_assert(0 != m_sockpair_inner.rtcp_sock); //	ÍøÂç²ÎÊıĞèÒªÉèÖÃ
-		pj_assert(nullptr != m_local_sdp_inner);		//	È»ºóÊÇ±¾µØsdp
-		pj_assert(nullptr != m_remote_sdp_inner);		//	ÔÙÈ»ºóÊÇÔ¶¶Ësdp
+		pj_assert(0 != m_sockpair_inner.rtcp_sock); //	Òª
+		pj_assert(nullptr != m_local_sdp_inner);		//	È»Ç±sdp
+		pj_assert(nullptr != m_remote_sdp_inner);		//	È»Ô¶sdp
 
-		pj_assert(0 != m_sockpair_outer.rtcp_sock); //	ÍøÂç²ÎÊıĞèÒªÉèÖÃ
-		pj_assert(nullptr != m_local_sdp_outer);		//	È»ºóÊÇ±¾µØsdp
-		pj_assert(nullptr != m_remote_sdp_outer);		//	ÔÙÈ»ºóÊÇÔ¶¶Ësdp
+		pj_assert(0 != m_sockpair_outer.rtcp_sock); //	Òª
+		pj_assert(nullptr != m_local_sdp_outer);		//	È»Ç±sdp
+		pj_assert(nullptr != m_remote_sdp_outer);		//	È»Ô¶sdp
 
-		pj_assert(!m_mediaok); //	´´½¨³É¹¦ºó²»ÄÜÔÙ´´½¨£¬Ò»´ÎÍ¨»°Ö»ÔÊĞí´´½¨Ò»´Î
+		pj_assert(!m_mediaok); //	É¹Ù´Ò»Í¨Ö»Ò»
 
-		//	¶ÔÄÚ¶ÔÍâ¶¼ĞèÒª´´½¨
+		//	Ú¶â¶¼Òª
 		bool _medok = false;
 		do {
 			_medok = this->create_media_player(true);
@@ -150,24 +151,24 @@ namespace ccsua {
 			}
 		} while (false);
 		if (!_medok) {
-			//	ĞèÒªÇåÀí´´½¨³öÀ´µÄÃ½ÌåÁ÷Ïà¹ØĞÅÏ¢£¬ÏÖÔÚ»¹Ã»ÓĞ×ö
+			//	ÒªÃ½Ï¢Ú»Ã»
 			stop_media_player();
 		}
 		m_mediaok = _medok;
 		return _medok;
 	}
 
-	//	¸ù¾İ²ÎÊıÀàĞÍ´´½¨Ã½Ìå²¥·Å, is_inner=true´´½¨¶ÔÄÚµÄÃ½Ìå²¥·Å; is_inner=false´´½¨¶ÔÍâµÄÃ½Ìå²¥·Å
+	//	İ²Í´Ã½å²¥, is_inner=trueÚµÃ½å²¥; is_inner=falseÃ½å²¥
 	bool sessmedia::create_media_player(bool is_inner) {
 		if (m_mediaok) return true;
-		//	ĞèÒªÏÈÑéÖ¤´«Êä±¾µØ¶Ë¿ÚÒÔ¼°¶Ô¶ËµÄÃ½Ìå¶Ë¿Ú
+		//	ÒªÖ¤ä±¾Ø¶Ë¿Ô¼Ô¶ËµÃ½Ë¿
 		pj_assert(nullptr != g_med_endpt);
-		pj_assert(0 != m_sockpair_inner.rtcp_sock); //	ÍøÂç²ÎÊıĞèÒªÉèÖÃ
-		pj_assert(nullptr != m_local_sdp_inner);		//	È»ºóÊÇ±¾µØsdp
-		pj_assert(nullptr != m_remote_sdp_inner);		//	ÔÙÈ»ºóÊÇÔ¶¶Ësdp
-		pj_assert(!m_mediaok); //	´´½¨³É¹¦ºó²»ÄÜÔÙ´´½¨£¬Ò»´ÎÍ¨»°Ö»ÔÊĞí´´½¨Ò»´Î
+		pj_assert(0 != m_sockpair_inner.rtcp_sock); //	Òª
+		pj_assert(nullptr != m_local_sdp_inner);		//	È»Ç±sdp
+		pj_assert(nullptr != m_remote_sdp_inner);		//	È»Ô¶sdp
+		pj_assert(!m_mediaok); //	É¹Ù´Ò»Í¨Ö»Ò»
 
-		//	Ê×ÏÈ¸ù¾İ·½ÏòÈ·¶¨ĞèÒªÊ¹ÓÃµÄ²ÎÊı--Ä¬ÈÏ¶ÔÄÚ
+		//	È¸İ·È·ÒªÊ¹ÃµÄ²--Ä¬Ï¶
 		media_sock_pair_t* psockpair = &m_sockpair_inner;
 		pjmedia_sdp_session* _plocalsdp = m_local_sdp_inner, * _premotesdp = m_remote_sdp_inner;
 		pjmedia_stream_info* _pstreaminfo = &m_streaminfo_inner;
@@ -192,16 +193,16 @@ namespace ccsua {
 		//si.rtcp_sock
 		pj_status_t status = PJ_SUCCESS;
 
-		//	Ö±½ÓÊ¹ÓÃĞ­ÉÌµÄ·½Ê½³¢ÊÔ»ñÈ¡µ½ºÏÊÊµÄsdp--Ö±½Ó´Óºô½ĞÇëÇóÖĞ»ñÈ¡µ½µÄsdp¿ÉÄÜ²»±»Ö§³Ö£¬ĞèÒª¸ù¾İË«¶ËµÄsdp×öĞ­ÉÌ
+		//	Ö±Ê¹Ğ­ÌµÄ·Ê½Ô»È¡Êµsdp--Ö±Ó´ÓºĞ»È¡sdpÜ²Ö§Ö£ÒªË«ËµsdpĞ­
 		pjmedia_sdp_neg* p_neg = nullptr;
 		status = pjmedia_sdp_neg_create_w_remote_offer(g_pool, _plocalsdp, _premotesdp, &p_neg);
 		pj_assert(PJ_SUCCESS == status);
 		status = pjmedia_sdp_neg_set_prefer_remote_codec_order(p_neg, true);
 		pj_assert(PJ_SUCCESS == status);
-		//	µ÷ÓÃĞ­ÉÌ..
+		//	Ğ­..
 		status = pjmedia_sdp_neg_negotiate(g_pool, p_neg, 0);
 		pj_assert(PJ_SUCCESS == status);
-		//	ÔÙ»ñÈ¡µ½Ğ­ÉÌºÃµÄsdp
+		//	Ù»È¡Ğ­ÌºÃµsdp
 		const pjmedia_sdp_session* _local_sdp = nullptr, *_remote_sdp = nullptr;
 		status = pjmedia_sdp_neg_get_active_local(p_neg, &_local_sdp);
 		pj_assert(PJ_SUCCESS == status);
@@ -230,7 +231,7 @@ namespace ccsua {
 				break;
 			}
 			if (is_inner) {
-				//	dtmf ÏÖÔÚÖ»×öÄÚ¶ËµÄ¼ì²â£¬Íâ¶ËµÄÂÔ¹ı£¬Íâ¶ËÖ»²¥·ÅÓïÒôÌáÊ¾
+				//	dtmf Ö»Ú¶ËµÄ¼â£¬ËµÔ¹Ö»Ê¾
 				status = pjmedia_stream_set_dtmf_callback(*_pmediastream, cb_dtmf_check, this);
 				pj_assert(PJ_SUCCESS == status);
 
@@ -265,10 +266,10 @@ namespace ccsua {
 		return false;
 	}
 
-	//	ÓïÒô²¥·ÅµÄÍ£Ö¹£¬´ËÊ±ĞèÒªÈ¡ÏûµôË«¶Ë´´½¨µÄÃ½ÌåÍ¨»°²¢ÊÍ·ÅÏà¹Ø×ÊÔ´£¬½«Í¨»°½»»Øµ½ÓïÒôÇÅ
+	//	ÅµÍ£Ö¹Ê±ÒªÈ¡Ë«Ë´Ã½Í¨Í·Ô´Í¨Øµ
 	bool sessmedia::stop_media_player() {
 		do {
-			//	ÏàÓ¦µÄÊÍ·Åº¯Êı:
+			//	Ó¦Í·Åº:
 			//	pjmedia_transport_media_start -> pjmedia_transport_media_stop
 			//	pjmedia_stream_start -> 
 			//	pjmedia_stream_set_dtmf_callback
@@ -287,8 +288,8 @@ namespace ccsua {
 					status = pjmedia_stream_destroy(ar_stream[i]);
 					pj_assert(PJ_SUCCESS == status);
 				}
-				//	wg. 20251110, ËäÈ»Õâ¸ötransportÊÇattach³öÀ´µÄ£¬µ«ÊÇÔÚÊµ²âÊ±·¢ÏÖÈç¹û½«Ëü¹Ø±Õµô¾ÍÎŞ·¨½øĞĞÓïÒôÍ¨ĞÅ¡£
-				//	ËùÒÔÕâ¸öµØ·½ÏÈ²»¹Ø±ÕÕâ¸ötransport.
+				//	wg. 20251110, È»transportattachÄ£ÊµÊ±Ø±ÕµŞ·Í¨Å¡
+				//	Ø·È²Ø±transport.
 				/*status = pjmedia_transport_close(ar_transport[i]);
 				pj_assert(PJ_SUCCESS == status);*/
 			}
@@ -296,7 +297,7 @@ namespace ccsua {
 		return true;
 	}
 
-	//	²¥·Å¶Ô¶ËÎªÆÕÍ¨»°»ú£¬²¢µÈ´ı°´¼üÈ·ÈÏ--Ïòb2bua×¢²áµÄ»°»ú²¥·Å
+	//	Å¶Ô¶ÎªÍ¨È´È·--b2bua×¢Ä»
 	void sessmedia::play_remote_is_normal() {
 		replay_wav_and_wait(_wav_rmt_normal, _wav_wait_remote_confirm);
 	}
@@ -314,12 +315,12 @@ namespace ccsua {
 		status = pjmedia_wav_player_port_create(g_pool,
 			(_wav_dir + wavfile).c_str(),          // file name
 			20,                   // ptime.
-			0, //	Ñ­»·²¥·Å.Ò»Ö±µÈµ½°´¼üÈ·ÈÏ£¬»òÕßÊÇÔ¤ÉèµÄ³¬Ê±
+			0, //	Ñ­.Ò»Ö±ÈµÈ·Ï£Ô¤Ä³Ê±
 			0,                    // buffer size
 			&wavplayer);
 		pj_assert(PJ_SUCCESS == status);
 		
-		//	resample²ÉÑùÂÊ²»ÊÇÈÎÒâÉèÖÃµÄ£¬ÊÇĞèÒª¸ù¾İ´´½¨µÄ¶Ô¶ËÃ½Ìå±àÂëÖĞÖ¸¶¨µÄ²ÉÑùÉèÖÃ
+		//	resampleÊ²ÃµÄ£Òªİ´Ä¶Ô¶Ã½Ö¸Ä²
 		status = pjmedia_resample_port_create(g_pool, wavplayer, m_streaminfo_inner.fmt.clock_rate,
 			0, &resample);
 		pj_assert(PJ_SUCCESS == status);
@@ -328,7 +329,7 @@ namespace ccsua {
 			status = pjmedia_wav_player_port_create(g_pool,
 				(_wav_dir + wavfile_outer).c_str(),          // file name
 				20,                   // ptime.
-				0, //	Ñ­»·²¥·Å.Ò»Ö±µÈµ½°´¼üÈ·ÈÏ£¬»òÕßÊÇÔ¤ÉèµÄ³¬Ê±
+				0, //	Ñ­.Ò»Ö±ÈµÈ·Ï£Ô¤Ä³Ê±
 				0,                    // buffer size
 				&wavplayer_outer);
 			pj_assert(PJ_SUCCESS == status);
@@ -340,7 +341,7 @@ namespace ccsua {
 
 		int bufcnt = 16384;
 		std::unique_ptr< pj_int16_t> samplebuf(new pj_int16_t[bufcnt]), samplebuf_outer(new pj_int16_t[bufcnt]);
-		//	°´È·¶¨¼ü»òÕß¹Ò»ú£¬ÈÎÒâÒ»¸öÂú×ã¾ÍÍ£Ö¹²¥·Å
+		//	È·ß¹Ò»Ò»Í£Ö¹
 		while (!(g_sharp_ok || m_ishunup)) {
 			pjmedia_frame frame, frame_outer;
 
@@ -361,7 +362,7 @@ namespace ccsua {
 				break;
 			}
 
-			//	Í¬²½²¥·ÅÁíÒ»¶Ë
+			//	Í¬Ò»
 			if (!wavfile_outer.empty()) {
 				frame.buf = samplebuf_outer.get();
 				frame.size = bufcnt;
@@ -380,15 +381,15 @@ namespace ccsua {
 					break;
 				}
 			}
-			pj_thread_sleep(20);	//	Õâ¸öÃ¿Ö¡ÑÓÊ±Ó¦¸Ã¸ù¾İwavÎÄ¼şµÄ²ÉÑù¡¢Í¨µÀµÈ²ÎÊı¼ÆËã£¬ÏÖÔÚ»¹Ëã²»À´
+			pj_thread_sleep(20);	//	Ã¿Ö¡Ê±Ó¦Ã¸wavÄ¼Ä²Í¨È²ã£¬Ú»ã²»
 		}
 		m_playing = false;
-		//	²¥·ÅÍê³ÉºóÍ£Ö¹ÓïÒôÍ¨µÀ£¬½«Í¨»°½»¸øÃ½ÌåÇÅ
+		//	ÉºÍ£Ö¹Í¨Í¨Ã½
 		stop_media_player();
 	}
 
 	///////////////////////////////////////////////////////////////
-	//	²¥·ÅÏß³Ì
+	//	ß³
 	///////////////////////////////////////////////////////////////
 
 	mediathread::mediathread() {
@@ -433,11 +434,11 @@ namespace ccsua {
 				m_tasklist.pop_front();
 			}
 			if (!ptr) {
-				break; //	Õâ¸öÊÇÍ£Ö¹ÏûÏ¢
+				break; //	Í£Ö¹Ï¢
 			}
-			//	Ö´ĞĞÈÎÎñ
+			//	Ö´
 			ptr->_taskfunc();
-			//	ÈÎÎñÖ´ĞĞÍê³Éºó£¬Ö´ĞĞÍê³ÉºóÊÂ¼ş
+			//	Ö´ÉºÖ´ÉºÂ¼
 			if (!ptr->_uasess->is_hung_up()) {
 				ptr->_completedfun(ptr->_uasess);
 			}
