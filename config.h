@@ -11,7 +11,7 @@ namespace ccsua {
 	private:
 		config();
 		virtual ~config();
-		static config m_config;
+		// static config m_config;
 	public:
 		static config& get();
 		//	º”‘ÿ≈‰÷√–≈œ¢
