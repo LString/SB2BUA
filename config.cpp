@@ -1,12 +1,18 @@
 //	config.cpp
-//	configÅäÖÃĞÅÏ¢µÄÊµÏÖ
+//	configÏ¢Êµ
 #include "config.h"
 
 namespace ccsua {
 	config config::m_config;
 	config::config() {
-		m_wav_dir = "F:\\wg\\voip\\sb2bua20251023\\wav_files\\";
-		m_certkey_dir = "F:\\wg\\voip\\sb2bua20251023\\certkey\\";
+                // Default locations differ between Windows development and POSIX deployments.
+#ifdef _WIN32
+                m_wav_dir = "F:\\wg\\voip\\sb2bua20251023\\wav_files\\";
+                m_certkey_dir = "F:\\wg\\voip\\sb2bua20251023\\certkey\\";
+#else
+                m_wav_dir = "./wav_files/";
+                m_certkey_dir = "./certkey/";
+#endif
 
 		m_certchain = "rootCA.crt";
 		m_selfcert = "1005.crt";
@@ -24,35 +30,35 @@ namespace ccsua {
 	}
 
 
-	//	¼ÓÔØÅäÖÃĞÅÏ¢--ĞèÒªÖ¸¶¨ÅäÖÃÎÄ¼şÂ·¾¶£¬È»ºó¶ÁÈ¡ÅäÖÃÎÄ¼ş²¢¼ÓÔØ
+	//	Ï¢--ÒªÖ¸Ä¼Â·È»È¡Ä¼
 	bool config::load() {
 		return true;
 	}
 
-	//	»ñÈ¡µ½ÅäÖÃµÄ¸÷ÏîĞÅÏ¢
+	//	È¡ÃµÄ¸Ï¢
 
-	//	»ñÈ¡µ½wavÎÄ¼ş´æ·ÅÂ·¾¶
+	//	È¡wavÄ¼Â·
 	const std::string config::wav_dir() const {
 		return m_wav_dir;
 	}
-	//	»ñÈ¡µ½Ö¤ÊéÁ´Â·¾¶--Ö¤ÊéÁ´Â·¾¶µÄ¸ñÊ½Îª: ¸ù->Ç©·¢Õß0->Ç©·¢Õß1->...Ç©·¢ÕßN, ĞèÒªÖğ²ãÑéÖ¤¡£Á´ÖĞµÄ×îºóÒ»¸öÓÃÀ´ÑéÓÃ»§Ö¤Êé
-	//	Èç¹ûÊÇÖ±½ÓÓÃ¸ùÇ©ÓÃ»§Ö¤Êé£¬Ö¤ÊéÁ´Â·¾¶ÖĞ¾ÍÖ»ÓĞÒ»¸ö¸ùÖ¤Êé
+	//	È¡Ö¤Â·--Ö¤Â·Ä¸Ê½Îª: ->Ç©0->Ç©1->...Ç©N, ÒªÖ¤ĞµÒ»Ã»Ö¤
+	//	Ö±Ã¸Ç©Ã»Ö¤é£¬Ö¤Â·Ğ¾Ö»Ò»Ö¤
 	const std::list<std::string> config::root_cert_file() const {
 		std::string _rootcert = m_certkey_dir + m_certchain;
 		std::list<std::string> _ret;
 		_ret.push_back(_rootcert);
 		return _ret;
 	}
-	//	»ñÈ¡µ½×ÔÉíÖ¤ÊéÂ·¾¶
+	//	È¡Ö¤Â·
 	const std::string config::self_cert_file() const {
 		return m_certkey_dir + m_selfcert;
 	}
-	//	»ñÈ¡µ½×ÔÉíË½Ô¿Â·¾¶
+	//	È¡Ë½Ô¿Â·
 	const std::string config::self_priv_key() const {
 		return m_certkey_dir + m_selfkey;
 	}
 
-	//	»ñÈ¡µ½Ïòsip·şÎñ×¢²áµÄÃÜÂë--ÓÃ»§ÃûÓ¦Ö±½Ó´ÓÖ¤ÊéÖĞÌáÈ¡,»òÕßÖÁÉÙÒª×öÑéÖ¤,±ØĞëÓëÓÃ»§Ö¤ÊéÖĞÆ¥Åä
+	//	È¡sip×¢--Ã»Ó¦Ö±Ó´Ö¤È¡,ÒªÖ¤,Ã»Ö¤Æ¥
 	const std::string config::sip_user_pwd() const {
 		return m_userpwd;
 	}
@@ -60,15 +66,15 @@ namespace ccsua {
 		return m_user;
 	}
 
-	//	sip ·şÎñµØÖ·
+	//	sip Ö·
 	const std::string config::sip_addr() const {
 		return m_sip_addr;
 	}
-	//	ÍâÍøµØÖ·: Óësip·şÎñÏàÁ¬
+	//	Ö·: sip
 	const std::string config::outer_addr() const {
 		return m_outer_addr;
 	}
-	//	ÄÚÍøµØÖ·: Óë»°»úÏàÁ¬
+	//	Ö·: ë»°
 	const std::string config::inner_addr() const {
 		return m_inner_addr;
 	}
